@@ -1,0 +1,142 @@
+package com.klef.jfsd.exam;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.Criteria;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Customer")
+public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "age")
+    private int age;
+
+    @Column(name = "location")
+    private String location;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+}
+
+package com.klef.jfsd.exam;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.Criteria;
+
+public class ClientDemo {
+
+    public static void main(String[] args) {
+        Configuration cfg = new Configuration();
+        cfg.configure("hibernate.cfg.xml");
+        cfg.addAnnotatedClass(Customer.class);
+
+        SessionFactory sessionFactory = cfg.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+
+        Transaction transaction = session.beginTransaction();
+
+     
+        Customer customer1 = new Customer();
+        customer1.setName("John Doe");
+        customer1.setEmail("john.doe@example.com");
+        customer1.setAge(30);
+        customer1.setLocation("New York");
+
+        Customer customer2 = new Customer();
+        customer2.setName("Jane Smith");
+        customer2.setEmail("jane.smith@example.com");
+        customer2.setAge(25);
+        customer2.setLocation("Los Angeles");
+
+        Customer customer3 = new Customer();
+        customer3.setName("Mike Johnson");
+        customer3.setEmail("mike.johnson@example.com");
+        customer3.setAge(35);
+        customer3.setLocation("Chicago");
+
+        session.save(customer1);
+        session.save(customer2);
+        session.save(customer3);
+
+        transaction.commit();
+
+    
+        System.out.println("\n--- Customers aged greater than 30 ---");
+        Criteria criteria = session.createCriteria(Customer.class);
+        criteria.add(Restrictions.gt("age", 30));
+        criteria.list().forEach(System.out::println);
+
+        System.out.println("\n--- Customers located in 'Los Angeles' ---");
+        criteria = session.createCriteria(Customer.class);
+        criteria.add(Restrictions.eq("location", "Los Angeles"));
+        criteria.list().forEach(System.out::println);
+
+        System.out.println("\n--- Customers aged between 20 and 30 ---");
+        criteria = session.createCriteria(Customer.class);
+        criteria.add(Restrictions.between("age", 20, 30));
+        criteria.list().forEach(System.out::println);
+
+        System.out.println("\n--- Customers whose name starts with 'J' ---");
+        criteria = session.createCriteria(Customer.class);
+        criteria.add(Restrictions.like("name", "J%"));
+        criteria.list().forEach(System.out::println);
+
+        session.close();
+        sessionFactory.close();
+    }
+}
